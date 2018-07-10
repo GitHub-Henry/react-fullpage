@@ -4,6 +4,8 @@
 import React, { Component } from 'react'
 import PropTypes from 'prop-types'
 
+import styles from './styles.css'
+
 class FullpageSection extends Component {
   static propTypes = {
     text: PropTypes.node
@@ -15,10 +17,11 @@ class FullpageSection extends Component {
       height = '100vh',
       style = {},
       className = '',
+      index = 0,
     } = this.props
 
     return (
-      <section className={className} style={{ height, ...style }} isslide={'true'}>
+      <section className={styles.fullpageSection} style={{ height, ...style }} __fullpagesection={index}>
         {children}
       </section>
     )
