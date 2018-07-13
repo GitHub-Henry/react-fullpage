@@ -36,7 +36,11 @@ class FullpageSection extends Component {
     } = this.props
 
     return (
-      <section className={className} style={{ height, ...style }} ref={this.ref}>
+      <section className={className} style={{
+        height,
+        boxSizing: 'border-box',
+        ...style
+      }} ref={this.ref}>
         {children}
       </section>
     )

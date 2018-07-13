@@ -14,6 +14,7 @@
     "build": "rollup -c",
     "start": "rollup -c -m -w",
     "prepare": "npm run build",
+    "link": "cd example && npm link @ap.cx/react-fullpage",
     "predeploy": "cd example && ncu -u && npm install && npm run build",
     "deploy": "gh-pages -d example/build"
   },

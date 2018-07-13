@@ -18,13 +18,16 @@ class Fullpage extends Component {
     this.driver = React.createRef()
     this.warperRef = React.createRef()
     this.fullpageRef = React.createRef()
+    this.steppingMode = true;
     this.ticking = false
-    this.timeout = null
+    this.historyTimeout = null
     this.children = null
     this.slides = null
+    this.clientHeight = 0
     this.state = {
-      translateY: 0,
+      transform: `translate3D(0, 0, 0)`,
       currentSlide: null,
+      transition: `none`,
       transitionTiming: 700,
     }
     this.lastKnownScrollPosition = 0
@@ -36,6 +39,7 @@ class Fullpage extends Component {
   }
 
   componentDidMount() {
+    this.clientHeight = Math.max(document.documentElement.clientHeight, window.innerHeight || 0)
     this.driver.current.style.height = `${this.fullpageRef.current.clientHeight}px`;
     //const children = Array.from(this.fullpageRef.current.children)
     //this.slides = children.filter(child => child.hasAttribute('isslide'))
@@ -63,14 +67,16 @@ class Fullpage extends Component {
   handleScroll(e) {
     if (!this.ticking) {
       window.requestAnimationFrame(() => {
-        const lastKnownScrollPosition = window.pageYOffset
-        const slide = this.slides.find(slide => lastKnownScrollPosition < slide.el.offsetTop + slide.el.offsetHeight * 0.5)
+        const scrollPosition = window.pageYOffset
+        const slide = this.slides.find(slide => scrollPosition < slide.el.offsetTop + slide.el.offsetHeight - Math.min(slide.el.offsetHeight, this.clientHeight) * 0.9)
+        //  new slide
         if(slide && this.state.currentSlide !== slide){
           const previousSlide = this.state.currentSlide
           this.setState({
             previousSlide: previousSlide,
             currentSlide: slide,
-            translateY: slide.el.offsetTop * -1,
+            transition: `transform 700ms cubic-bezier(0.645, 0.045, 0.355, 1.000)`,
+            transform: `translate3D(0, ${(slide.el.offsetTop * -1)}px, 0)`,
           })
           if (
             previousSlide
@@ -87,19 +93,45 @@ class Fullpage extends Component {
             && typeof this.onShow[slide.slide.props.udid].props.onShow === 'function') {
             this.onShow[slide.slide.props.udid].props.onShow(this.state.translateY)
           }
-          clearTimeout(this.timeout)
-          this.timeout = setTimeout(() => this.updateHistory(slide),this.state.transitionTiming)
+          clearTimeout(this.historyTimeout)
+          this.historyTimeout = setTimeout(() => this.updateHistory(slide),this.state.transitionTiming)
         }
-        this.lastKnownScrollPosition = lastKnownScrollPosition
+
+        if (
+          this.state.currentSlide.el.offsetHeight > this.clientHeight
+          && scrollPosition > this.state.currentSlide.el.offsetTop
+          && scrollPosition < this.state.currentSlide.el.offsetTop + this.state.currentSlide.el.offsetHeight
+        ) {
+          console.log('scroll', scrollPosition);
+          this.setState({
+            transition: `none`,
+            transform: `translate3D(0, ${(scrollPosition * -1)}px, 0)`,
+          })
+        }
+
+        this.lastKnownScrollPosition = scrollPosition
         this.ticking = false
       });
     }
     this.ticking = true
   }
 
+  toogleSteppingMode() {
+    this.steppingMode = !this.steppingMode;
+  }
+
+  activateSteppingMode() {
+    this.steppingMode = true;
+  }
+
+  desactivateSteppingMode() {
+    this.steppingMode = false;
+  }
+
   handleResize() {
     if (!this.ticking) {
       window.requestAnimationFrame(() => {
+        this.clientHeight = Math.max(document.documentElement.clientHeight, window.innerHeight || 0)
         this.driver.current.style.height = `${this.fullpageRef.current.clientHeight}px`
         this.ticking = false
       });
@@ -165,9 +197,9 @@ class Fullpage extends Component {
         <div style={{ position: 'relative' }} ref={this.driver}></div>
         <div className={styles.fullpageWarper} style={{ ...warperStyle }} ref={this.warperRef}>
           <div className={styles.fullpage} style={{
-            transition: `transform ${transitionTiming}ms cubic-bezier(0.645, 0.045, 0.355, 1.000)`,
+            transition: this.state.transition,
             ...style,
-            transform: `translate3D(0, ${(this.state.translateY)}px, 0)`
+            transform: this.state.transform,
           }} ref={this.fullpageRef}>
             { this.children }
             { navigation && <Navigation data={children}/> }
