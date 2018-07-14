@@ -1,5 +1,16 @@
 /* add css styles here (optional) */
 
+.fullpageDriver {
+  -webkit-backface-visibility: hidden;
+  /* transform-style: preserve-3d; */
+}
+
+.fullpageWarper {
+  -webkit-backface-visibility: hidden;
+  /* transform-style: preserve-3d; */
+}
+
 .fullpage {
-  
+  -webkit-backface-visibility: hidden;
+  /* transform-style: preserve-3d; */
 }

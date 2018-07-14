@@ -39,7 +39,8 @@ class FullpageSection extends Component {
       <section className={className} style={{
         height,
         boxSizing: 'border-box',
-        ...style
+        ...style,
+        transform: 'translate(0, 0)',
       }} ref={this.ref}>
         {children}
       </section>

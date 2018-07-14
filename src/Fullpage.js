@@ -18,14 +18,13 @@ class Fullpage extends Component {
     this.driver = React.createRef()
     this.warperRef = React.createRef()
     this.fullpageRef = React.createRef()
-    this.steppingMode = true;
     this.ticking = false
     this.historyTimeout = null
     this.children = null
     this.slides = null
     this.clientHeight = 0
     this.state = {
-      transform: `translate3D(0, 0, 0)`,
+      transform: 'translate(0, 0)',
       currentSlide: null,
       transition: `none`,
       transitionTiming: 700,
@@ -36,13 +35,21 @@ class Fullpage extends Component {
     this.handleScroll = this.handleScroll.bind(this)
     this.handleResize = this.handleResize.bind(this)
     this.updateHistory = this.updateHistory.bind(this)
+    // TODO SSR  compilence (typeof window !== 'undefined')
+    this.isSafari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent)
+    this.isMobile = (navigator.userAgent.match(/iPad/i) || navigator.userAgent.match(/iPhone/i))
+    this.useGPU = true
+    if(this.isSafari && this.isMobile) {
+      this.useGPU = false 
+    }
   }
 
   componentDidMount() {
-    this.clientHeight = Math.max(document.documentElement.clientHeight, window.innerHeight || 0)
+    this.clientHeight = Math.max(document.documentElement.clientHeight, window.innerHeight || 600)
     this.driver.current.style.height = `${this.fullpageRef.current.clientHeight}px`;
     //const children = Array.from(this.fullpageRef.current.children)
     //this.slides = children.filter(child => child.hasAttribute('isslide'))
+    console.log(this.props);
     this.slides = this.children.filter(child => child.type === Section).map((slide, index) => {
       const el = slide.ref.current.ref.current
       return {slide, el, index}
@@ -68,15 +75,18 @@ class Fullpage extends Component {
     if (!this.ticking) {
       window.requestAnimationFrame(() => {
         const scrollPosition = window.pageYOffset
-        const slide = this.slides.find(slide => scrollPosition < slide.el.offsetTop + slide.el.offsetHeight - Math.min(slide.el.offsetHeight, this.clientHeight) * 0.9)
+        if(Math.abs(scrollPosition - this.lastKnownScrollPosition) < 10) {
+          console.log('dis', Math.abs(scrollPosition - this.lastKnownScrollPosition));
+        }
+        const slide = this.slides.find(slide => scrollPosition < slide.el.offsetTop + slide.el.offsetHeight - (Math.min(slide.el.offsetHeight, this.clientHeight) * 0.5))
         //  new slide
         if(slide && this.state.currentSlide !== slide){
           const previousSlide = this.state.currentSlide
           this.setState({
             previousSlide: previousSlide,
             currentSlide: slide,
-            transition: `transform 700ms cubic-bezier(0.645, 0.045, 0.355, 1.000)`,
-            transform: `translate3D(0, ${(slide.el.offsetTop * -1)}px, 0)`,
+            transition: `transform ${this.state.transitionTiming}ms cubic-bezier(0.645, 0.045, 0.355, 1.000)`,
+            transform: `translateY(${(slide.el.offsetTop * -1)}px)${this.useGPU ? ' translateZ(0) sacle(1)' : ''}`,
           })
           if (
             previousSlide
@@ -105,7 +115,7 @@ class Fullpage extends Component {
           console.log('scroll', scrollPosition);
           this.setState({
             transition: `none`,
-            transform: `translate3D(0, ${(scrollPosition * -1)}px, 0)`,
+            transform: `translateY(${(scrollPosition * -1)}px)${this.useGPU ? ' translateZ(0) sacle(1)' : ''}`,
           })
         }
 
@@ -114,18 +124,6 @@ class Fullpage extends Component {
       });
     }
     this.ticking = true
-  }
-
-  toogleSteppingMode() {
-    this.steppingMode = !this.steppingMode;
-  }
-
-  activateSteppingMode() {
-    this.steppingMode = true;
-  }
-
-  desactivateSteppingMode() {
-    this.steppingMode = false;
   }
 
   handleResize() {
@@ -194,7 +192,7 @@ class Fullpage extends Component {
 
     return (
       <div>
-        <div style={{ position: 'relative' }} ref={this.driver}></div>
+        <div className={styles.fullpageDriver} style={{ position: 'relative' }} ref={this.driver}></div>
         <div className={styles.fullpageWarper} style={{ ...warperStyle }} ref={this.warperRef}>
           <div className={styles.fullpage} style={{
             transition: this.state.transition,

@@ -28,7 +28,7 @@ export default class App extends Component {
           justifyContent: 'center',
         }}>
           <div>
-            <h1 style={{fontSize: '4em'}}>React Fullpage 0.0.9 Alpha</h1>
+            <h1 style={{fontSize: '4em'}}>React Fullpage Experiment</h1>
             <h2 style={{fontSize: '2em'}}>Create Fullscreen Scrolling Websites</h2>
           </div>
         </FullpageSection>
@@ -56,16 +56,20 @@ export default class App extends Component {
         <FullpageSection style={{
           backgroundColor: this.state.backgroundColor2,
           color: 'white',
-          height: '100vh',
+          height: 'auto',
           padding: '1em',
           display: 'flex',
           flexDirection: 'row',
           alignItems: 'flex-start',
           justifyContent: 'center',
-          transition: 'background-color 1000ms linear',
         }}>
           <div>
-            <h1 style={{fontSize: '4em'}}>3</h1>
+            <h1 style={{fontSize: '4em'}}>Height Auto</h1>
+            {
+              Array.from(Array(30).keys()).map( index =>(
+                <p style={{fontSize: '2em'}} ref={`index_${index}`}>{index}</p>
+              ))
+            }
           </div>
         </FullpageSection>
         <FullpageSection style={{
