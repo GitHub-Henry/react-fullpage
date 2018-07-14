@@ -13,7 +13,7 @@ class Fullpage extends Component {
     text: PropTypes.node
   }
 
-  constructor(props) {
+  constructor (props) {
     super(props)
     this.driver = React.createRef()
     this.warperRef = React.createRef()
@@ -40,11 +40,11 @@ class Fullpage extends Component {
     this.isMobile = (navigator.userAgent.match(/iPad/i) || navigator.userAgent.match(/iPhone/i))
     this.useGPU = true
     if(this.isSafari && this.isMobile) {
-      this.useGPU = false 
+      this.useGPU = false
     }
   }
 
-  componentDidMount() {
+  componentDidMount () {
     this.clientHeight = Math.max(document.documentElement.clientHeight, window.innerHeight || 600)
     this.driver.current.style.height = `${this.fullpageRef.current.clientHeight}px`;
     //const children = Array.from(this.fullpageRef.current.children)
@@ -63,7 +63,7 @@ class Fullpage extends Component {
     }
   }
 
-  componentWillUnmount() {
+  componentWillUnmount () {
     // set body height == to 'auto'
     if (typeof window !== 'undefined') {
       window.removeEventListener('scroll', this.handleScroll)
@@ -71,7 +71,7 @@ class Fullpage extends Component {
     }
   }
 
-  handleScroll(e) {
+  handleScroll (e) {
     if (!this.ticking) {
       window.requestAnimationFrame(() => {
         const scrollPosition = window.pageYOffset
@@ -126,7 +126,7 @@ class Fullpage extends Component {
     this.ticking = true
   }
 
-  handleResize() {
+  handleResize () {
     if (!this.ticking) {
       window.requestAnimationFrame(() => {
         this.clientHeight = Math.max(document.documentElement.clientHeight, window.innerHeight || 0)
@@ -137,25 +137,25 @@ class Fullpage extends Component {
     this.ticking = true
   }
 
-  updateHistory(slide) {
+  updateHistory (slide) {
   }
 
-  subscribeOnShow(uuid, slide) {
+  subscribeOnShow (uuid, slide) {
     this.onShow[uuid] = slide
   }
 
-  subscribeOnHide(uuid, slide) {
+  subscribeOnHide (uuid, slide) {
     this.onHide[uuid] = slide
   }
 
-  uuidv4() {
+  uuidv4 () {
     return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
       var r = Math.random() * 16 | 0, v = c == 'x' ? r : (r & 0x3 | 0x8);
       return v.toString(16);
     });
   }
 
-  render() {
+  render () {
     const {
       children,
       navigation = true,
